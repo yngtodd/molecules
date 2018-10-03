@@ -35,6 +35,7 @@ setup(
     package_dir={'molecules': 'molecules'},
     include_package_data=True,
     install_requires=[
+      gym_molecules
     ],
     license='MIT',
     zip_safe=False,
