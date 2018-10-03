@@ -22,11 +22,15 @@ Molecules
 
 Machine learning for molecular dynamics.
 
+Documentation
+-------------
+
+For references, tutorials, and examples check out our `documentation`_.
+
 Installation
 ------------
 
-From sources
-------------
+From Sources:
 
 You can either clone the public repository:
 
@@ -48,3 +52,4 @@ Once you have a copy of the source, you can install it with:
 
 
 .. _tarball: https://github.com/yngtodd/molecules/tarball/master
+.. _documentation: https://molecules.readthedocs.io/en/latest
