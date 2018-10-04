@@ -8,6 +8,7 @@ class FCPolicy(nn.Module):
     Simple fully connected policy network.
     """
     def __init__(self, state_dim, n_actions):
+        super(FCPolicy, self).__init__()
         self.affine1 = nn.Linear(state_dim, 128)
         self.affine2 = nn.Linear(128, n_actions)
 
