@@ -40,7 +40,7 @@ class Reinforce:
         probs = self.policy(state)
         m = Categorical(probs)
         action = m.sample()
-        policy.saved_log_probs.append(m.log_prob(action))
+        self.policy.saved_log_probs.append(m.log_prob(action))
         return action.item()
 
     def finish_episode(self, optimizer):
@@ -54,14 +54,14 @@ class Reinforce:
         R = 0
         policy_loss = []
         rewards = []
-        for r in policy.rewards[::-1]:
-            R = r + args.gamma * R
+        for r in self.policy.rewards[::-1]:
+            R = r + self.gamma * R
             rewards.insert(0, R)
 
         rewards = torch.tensor(rewards)
         rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
 
-        for log_prob, reward in zip(policy.saved_log_probs, rewards):
+        for log_prob, reward in zip(self.policy.saved_log_probs, rewards):
             policy_loss.append(-log_prob * reward)
 
         optimizer.zero_grad()
