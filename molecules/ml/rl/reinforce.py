@@ -1,10 +1,20 @@
 import torch
 from torch.distributions import Categorical
 
+import numpy as np
+
 
 class Reinforce:
     """
     Reinforce algorithm.
+
+    Parameters:
+    ----------
+    * `policy` : torch.nn.Module
+      Neural network used to learn policy.
+
+    * `gamma` : float
+      Discount factor for the RL algorithm.
 
     Notes:
     -----
@@ -12,8 +22,10 @@ class Reinforce:
       categorical distribution of softmax scores from the
       policy network.
     """
-    def __init__(self, policy):
+    def __init__(self, policy, gamma=0.99):
         self.policy = policy
+        self.gamma = gamma
+        self.eps = np.finfo(np.float32).eps.item()
 
     def select_action(self, state):
         """
@@ -47,7 +59,7 @@ class Reinforce:
             rewards.insert(0, R)
 
         rewards = torch.tensor(rewards)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + eps)
+        rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
 
         for log_prob, reward in zip(policy.saved_log_probs, rewards):
             policy_loss.append(-log_prob * reward)
