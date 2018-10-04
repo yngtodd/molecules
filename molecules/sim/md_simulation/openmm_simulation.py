@@ -1,11 +1,10 @@
 import simtk.openmm.app as app
 import simtk.openmm as omm
 import simtk.unit as u
-#from simtk.openmm.app.gromacstopfile import _defaultGromacsIncludeDir
 
-# ParmEd imports
 import parmed as pmd
 import random
+
 
 def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="output.dcd", output_log="output.log", report_time=10*u.picoseconds, sim_time=10*u.nanoseconds): 
     """
