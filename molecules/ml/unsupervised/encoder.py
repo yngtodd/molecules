@@ -1,3 +1,5 @@
+import gc
+
 from keras.models import Model
 from keras.layers import Input
 from keras.layers import Convolution2D
@@ -51,7 +53,10 @@ class ConvolutionalEncoder2D:
                               activation=self.hparams.activation, 
                               padding='same')(x)
             conv2d_layers.append(x)
-        
+       
+        del x
+        gc.collect()
+
         return conv2d_layers
     
     def create_graph(self):
@@ -60,7 +65,7 @@ class ConvolutionalEncoder2D:
         return graph
     
     def summary(self):
-        print('Convolutional Encoder:\n')
+        print('Convolutional Encoder:')
         self.graph.summary()
     
     def fit(self):
