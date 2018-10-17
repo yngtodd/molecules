@@ -13,10 +13,10 @@ from keras.layers import Convolution2D
 class HyperparamsEncoder:
 
     def __init__(self):
-        self.num_conv_layers = 4
-        self.filters = [64, 64, 64, 64]
-        self.kernels = [3, 3, 3, 3]
-        self.strides = [1, 2, 1, 1]
+        self.num_conv_layers = 3 
+        self.filters = [64, 64, 64]
+        self.kernels = [3, 3, 3]
+        self.strides = [1, 2, 1]
         self.activation = 'relu'
         self.num_affine_layers = 1
         self.affine_width = [128]
