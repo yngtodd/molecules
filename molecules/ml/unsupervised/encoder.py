@@ -17,7 +17,7 @@ class EncoderHyperparams:
         self.strides = [1, 2, 1, 1]
         self.activation = 'relu'
         self.num_affine_layers = 1
-        self.fc_width = [128]
+        self.affine_width = [128]
         self.dropout = [0]
 
 
@@ -81,11 +81,11 @@ class ConvolutionalEncoder2D:
         if len(self.hparams.affine_width)!=self.hparams.num_affine_layers:
             raise Exception("number of affine width parameters must equal the number of affine layers")
         if len(self.hparams.dropout)!=self.hparams.num_affine_layers:
-            raise Exception("number of dropout parameters  must equal the number of affine layers")
+            raise Exception("number of dropout parameters must equal the number of affine layers")
 
         fc_layers = []
         for i in range(self.hparams.num_affine_layers):
-            x = Dense(self.hparams.fc_width[i], 
+            x = Dense(self.hparams.affine_width[i], 
                       activation=self.hparams.activation)(Dropout(self.hparams.dropout[i])(x))
             fc_layers.append(x);
 
