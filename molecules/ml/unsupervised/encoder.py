@@ -1,4 +1,5 @@
 import gc
+import numpy as np
 
 from keras import backend as K
 from keras.models import Model
@@ -27,9 +28,11 @@ class HyperparamsEncoder:
 class EncoderConvolution2D:
 
     def __init__(self, input_shape, hyperparameters=HyperparamsEncoder()):
+        self.input_shape = input_shape
         self.input = Input(shape=input_shape)
         self.hparams = hyperparameters
         self.graph = self._create_graph()
+        self.num_conv_params_final = self._get_final_conv_params()
 
     def __repr__(self):
         return '2D Convolutional Encoder.'
@@ -122,15 +125,21 @@ class EncoderConvolution2D:
 
     def _create_graph(self):
         """Create the keras model."""
-        conv_layers = self._conv_layers(self.input)
-        flattened = Flatten()(conv_layers[-1])
-        z_mean, z_log_var , z = self._affine_layers(flattened)
+        self.conv_layers = self._conv_layers(self.input)
+        self.flattened = Flatten()(self.conv_layers[-1])
+        z_mean, z_log_var , z = self._affine_layers(self.flattened)
         graph = Model(self.input, [z_mean, z_log_var, z], name='encoder')
         return graph
+
+    def _get_final_conv_params(self):
+        """Get the number of flattened parameters from final convolution layer."""
+        _input = np.ones((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
+        dummy = Model(self.input, self.conv_layers[-1])
+        conv_shape = dummy.predict(_input).shape
+        total_conv_params = 1
+        for x in conv_shape: total_conv_params *= x
+        return total_conv_params 
 
     def summary(self):
         print('Convolutional Encoder:')
         self.graph.summary()
-
-    def fit(self):
-        self.graph.fit()
