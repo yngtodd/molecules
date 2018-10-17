@@ -2,6 +2,9 @@ import gc
 
 from keras.models import Model
 from keras.layers import Input
+from keras.layers import Dense
+from keras.layers import Flatten
+from keras.layers import Dropout
 from keras.layers import Convolution2D
 
 
@@ -11,8 +14,11 @@ class EncoderHyperparams:
         self.num_conv_layers = 4
         self.filters = [64, 64, 64, 64]
         self.kernels = [3, 3, 3, 3]
-        self.strides = [2, 2, 2, 2]
+        self.strides = [1, 2, 1, 1]
         self.activation = 'relu'
+        self.num_affine_layers = 1
+        self.fc_width = [128]
+        self.dropout = [0]
 
 
 class ConvolutionalEncoder2D:
@@ -20,7 +26,7 @@ class ConvolutionalEncoder2D:
     def __init__(self, hyperparameters, input_shape):
         self.hparams = hyperparameters
         self.input = Input(shape=input_shape)
-        self.graph = self.create_graph()
+        self.graph = self._create_graph()
         
     def __repr__(self):
         return '2D Convolutional Encoder.'
@@ -58,10 +64,38 @@ class ConvolutionalEncoder2D:
         gc.collect()
 
         return conv2d_layers
+
+    def _affine_layers(self, x):
+        """Compose fully connected layers.
+
+        Parameters
+        ----------
+        x : tensorflow Tensor
+            Flattened tensor from convolution layers.
+
+        Returns
+        -------
+        fc_layers : list
+            Fully connected layers for embedding.
+        """
+        fc_layers = []
+        for i in range(self.hparams.num_affine_layers):
+            x = Dense(self.hparams.fc_width[i], 
+                      activation=self.hparams.activation)(Dropout(self.hparams.dropout[i])(x))
+            fc_layers.append(x);
+
+        del x
+        gc.collect()
+
+        return fc_layers
+
     
-    def create_graph(self):
-        layers = self._conv_layers(self.input)
-        graph = Model(self.input, layers)
+    def _create_graph(self):
+        """Create the keras model."""
+        conv_layers = self._conv_layers(self.input)
+        flattened = Flatten()(conv_layers[-1])
+        fc_layers = self._affine_layers(flattened)
+        graph = Model(self.input, fc_layers)
         return graph
     
     def summary(self):
