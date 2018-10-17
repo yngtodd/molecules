@@ -78,13 +78,18 @@ class ConvolutionalEncoder2D:
         fc_layers : list
             Fully connected layers for embedding.
         """
+        if len(self.hparams.affine_width)!=self.hparams.num_affine_layers:
+            raise Exception("number of affine width parameters must equal the number of affine layers")
+        if len(self.hparams.dropout)!=self.hparams.num_affine_layers:
+            raise Exception("number of dropout parameters  must equal the number of affine layers")
+
         fc_layers = []
         for i in range(self.hparams.num_affine_layers):
             x = Dense(self.hparams.fc_width[i], 
                       activation=self.hparams.activation)(Dropout(self.hparams.dropout[i])(x))
             fc_layers.append(x);
 
-        del x
+        del x 
         gc.collect()
 
         return fc_layers
