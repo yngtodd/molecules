@@ -89,7 +89,6 @@ class ConvolutionalEncoder2D:
 
         return fc_layers
 
-    
     def _create_graph(self):
         """Create the keras model."""
         conv_layers = self._conv_layers(self.input)
