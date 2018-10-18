@@ -32,7 +32,6 @@ class EncoderConvolution2D:
         self.input = Input(shape=input_shape)
         self.hparams = hyperparameters
         self.graph = self._create_graph()
-        self.num_conv_params_final = self._get_final_conv_params()
 
     def __repr__(self):
         return '2D Convolutional Encoder.'
@@ -136,9 +135,9 @@ class EncoderConvolution2D:
         _input = np.ones((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
         dummy = Model(self.input, self.conv_layers[-1])
         conv_shape = dummy.predict(_input).shape
-        total_conv_params = 1
-        for x in conv_shape: total_conv_params *= x
-        return total_conv_params 
+        self.final_conv_shape = conv_shape[1:]
+        self.total_conv_params = 1
+        for x in conv_shape: self.total_conv_params *= x
 
     def summary(self):
         print('Convolutional Encoder:')

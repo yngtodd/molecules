@@ -3,9 +3,8 @@ import gc
 from keras.models import Model
 from keras.layers import Input
 from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import Dropout
-from keras.layers import Convolution2D
+from keras.layers import Reshape
+from keras.layers import Conv2DTranspose
 
 
 class HyperparamsDecoder:
@@ -24,11 +23,13 @@ class HyperparamsDecoder:
 
 class DecoderConvolution2D:
 
-    def __init__(self, output_shape, enc_final_convs, hyperparameters=HyperparamsDecoder()):
+    def __init__(self, output_shape, enc_conv_params, enc_conv_shape, hyperparameters=HyperparamsDecoder()):
         self.output_shape = output_shape
-        self.enc_convs = enc_final_convs
+        self.enc_conv_params = enc_conv_params
+        self.enc_conv_shape = enc_conv_shape
         self.hparams = hyperparameters
         self.input = Input(shape=(self.hparams.latent_dim,), name='z_sampling')
+        self.graph = self._create_graph()
 
     def __repr__(self):
         return '2D Convolutional Decoder.'
@@ -52,7 +53,7 @@ class DecoderConvolution2D:
             fc_layers.append(x)
 
         # Since the networks are symmetric, we need a Dense layer to bridge fc layers and conv.
-        x = Dense(self.enc_convs, activation=self.hparams.activation)(x)
+        x = Dense(self.enc_conv_params, activation=self.hparams.activation)(x)
         fc_layers.append(x)
 
         del x
@@ -87,22 +88,34 @@ class DecoderConvolution2D:
 
         conv2d_layers = []
         for i in range(self.hparams.num_conv_layers-1):
-            x = Convolution2D(filters[i],
-                              kernels[i],
-                              strides=strides[i],
-                              activation=self.hparams.activation,
-                              padding='same')(x)
+            x = Conv2DTranspose(filters[i],
+                                kernels[i],
+                                strides=strides[i],
+                                activation=self.hparams.activation,
+                                padding='same')(x)
             conv2d_layers.append(x)
 
-        # Final output is special.
-        x = Convolution2D(self.output_shape[2],
-                          kernels[-1],
-                          strides=strides[-1],
-                          activations=self.hparams.output_activation,
-                          padding='same')(x)
+        # Final output is special. 
+        x = Conv2DTranspose(self.output_shape[2],
+                            kernels[-1],
+                            strides=strides[-1],
+                            activation=self.hparams.output_activation,
+                            padding='same')(x)
+
+        conv2d_layers.append(x)
 
         del x
         gc.collect()
 
         return conv2d_layers
 
+    def _create_graph(self):
+        affine_layers = self._affine_layers(self.input)
+        reshaped = Reshape(self.enc_conv_shape)(affine_layers[-1])
+        out_img = self._conv_layers(reshaped)
+        graph = Model(self.input, out_img, name='decoder')
+        return graph
+
+    def summary(self):
+        print('Convolutional Decoder')
+        return self.graph.summary()
