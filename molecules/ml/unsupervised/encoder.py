@@ -97,12 +97,11 @@ class EncoderConvolution2D:
         del x
         gc.collect()
 
-        z_mean = Dense(self.hparams.latent_dim)(fc_layers[-1])
-        z_log_var = Dense(self.hparams.latent_dim)(fc_layers[-1])
-        z = Lambda(self.sampling, output_shape=(self.hparams.latent_dim,))([z_mean, z_log_var])
-        return z_mean, z_log_var, z
+        self.z_mean = Dense(self.hparams.latent_dim)(fc_layers[-1])
+        self.z_log_var = Dense(self.hparams.latent_dim)(fc_layers[-1])
+        self.z = Lambda(self.sampling, output_shape=(self.hparams.latent_dim,))([self.z_mean, self.z_log_var])
 
-    def sampling(self, encoder_output):
+    def sampling(self, args):
         """
         Reparameterization trick by sampling fr an isotropic unit Gaussian.
 
@@ -116,7 +115,7 @@ class EncoderConvolution2D:
         z : tensor
             Sampled latent vector
         """
-        z_mean, z_log_var = encoder_output
+        z_mean, z_log_var = args
         batch = K.shape(z_mean)[0]
         dim = K.int_shape(z_mean)[1]
         epsilon = K.random_normal(shape=(batch, dim))
@@ -126,8 +125,8 @@ class EncoderConvolution2D:
         """Create the keras model."""
         self.conv_layers = self._conv_layers(self.input)
         self.flattened = Flatten()(self.conv_layers[-1])
-        z_mean, z_log_var , z = self._affine_layers(self.flattened)
-        graph = Model(self.input, [z_mean, z_log_var, z], name='encoder')
+        self._affine_layers(self.flattened)
+        graph = Model(self.input, [self.z_mean, self.z_log_var, self.z], name='encoder')
         return graph
 
     def _get_final_conv_params(self):
