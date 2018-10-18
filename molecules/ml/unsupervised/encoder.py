@@ -1,14 +1,16 @@
 import gc
 
+from keras import backend as K
 from keras.models import Model
 from keras.layers import Input
 from keras.layers import Dense
+from keras.layers import Lambda
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import Convolution2D
 
 
-class EncoderHyperparams:
+class HyperparamsEncoder:
 
     def __init__(self):
         self.num_conv_layers = 4
@@ -19,11 +21,12 @@ class EncoderHyperparams:
         self.num_affine_layers = 1
         self.affine_width = [128]
         self.dropout = [0]
+        self.latent_dim = 3
 
 
 class EncoderConvolution2D:
 
-    def __init__(self, input_shape, hyperparameters=EncoderHyperparams()):
+    def __init__(self, input_shape, hyperparameters=HyperparamsEncoder()):
         self.input = Input(shape=input_shape)
         self.hparams = hyperparameters
         self.graph = self._create_graph()
@@ -92,14 +95,37 @@ class EncoderConvolution2D:
         del x
         gc.collect()
 
-        return fc_layers
+        z_mean = Dense(self.hparams.latent_dim)(fc_layers[-1])
+        z_log_var = Dense(self.hparams.latent_dim)(fc_layers[-1])
+        z = Lambda(self.sampling, output_shape=(self.hparams.latent_dim,))([z_mean, z_log_var])
+        return z_mean, z_log_var, z
+
+    def sampling(self, encoder_output):
+        """
+        Reparameterization trick by sampling fr an isotropic unit Gaussian.
+
+        Parameters
+        ----------
+        encoder_output : tensor
+            Mean and log of variance of Q(z|X)
+
+        Returns
+        -------
+        z : tensor
+            Sampled latent vector
+        """
+        z_mean, z_log_var = encoder_output
+        batch = K.shape(z_mean)[0]
+        dim = K.int_shape(z_mean)[1]
+        epsilon = K.random_normal(shape=(batch, dim))
+        return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
     def _create_graph(self):
         """Create the keras model."""
         conv_layers = self._conv_layers(self.input)
         flattened = Flatten()(conv_layers[-1])
-        fc_layers = self._affine_layers(flattened)
-        graph = Model(self.input, fc_layers)
+        z_mean, z_log_var , z = self._affine_layers(flattened)
+        graph = Model(self.input, [z_mean, z_log_var, z], name='encoder')
         return graph
 
     def summary(self):
