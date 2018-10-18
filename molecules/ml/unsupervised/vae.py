@@ -22,6 +22,7 @@ class CVAE:
     def summary(self):
         print('Convolutional Variational Autoencoder\n')
         self.encoder.summary()
+        self.decoder.summary()
 
     def _create_graph(self):
         encoder = self.encoder.graph
