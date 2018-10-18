@@ -9,7 +9,7 @@ from keras.layers import Convolution2D
 
 
 class EncoderHyperparams:
-    
+
     def __init__(self):
         self.num_conv_layers = 4
         self.filters = [64, 64, 64, 64]
@@ -22,27 +22,27 @@ class EncoderHyperparams:
 
 
 class ConvolutionalEncoder2D:
-    
-    def __init__(self, hyperparameters, input_shape):
-        self.hparams = hyperparameters
+
+    def __init__(self, input_shape, hyperparameters=EncoderHyperparams()):
         self.input = Input(shape=input_shape)
+        self.hparams = hyperparameters
         self.graph = self._create_graph()
-        
+
     def __repr__(self):
         return '2D Convolutional Encoder.'
-        
+
     def _conv_layers(self, x):
         """Compose convolution layers.
-        
+
         Parameters
         ----------
         x : keras.layers.Input
             Shape of the image input.
-            
+
         Returns
         -------
         conv2d_layers : list
-            Convolution layers 
+            Convolution layers
         """
         if len(self.hparams.filters)!=self.hparams.num_conv_layers:
             raise Exception("number of filters must equal number of convolutional layers.")
@@ -50,16 +50,16 @@ class ConvolutionalEncoder2D:
             raise Exception("number of kernels must equal number of convolutional layers.")
         if len(self.hparams.filters)!=self.hparams.num_conv_layers:
             raise Exception("number of strides must equal length of convolutional layers.")
-            
+
         conv2d_layers = []
         for i in range(self.hparams.num_conv_layers):
-            x = Convolution2D(self.hparams.filters[i], 
-                              self.hparams.kernels[i], 
-                              strides=self.hparams.strides[i], 
-                              activation=self.hparams.activation, 
+            x = Convolution2D(self.hparams.filters[i],
+                              self.hparams.kernels[i],
+                              strides=self.hparams.strides[i],
+                              activation=self.hparams.activation,
                               padding='same')(x)
             conv2d_layers.append(x)
-       
+
         del x
         gc.collect()
 
@@ -85,11 +85,11 @@ class ConvolutionalEncoder2D:
 
         fc_layers = []
         for i in range(self.hparams.num_affine_layers):
-            x = Dense(self.hparams.affine_width[i], 
+            x = Dense(self.hparams.affine_width[i],
                       activation=self.hparams.activation)(Dropout(self.hparams.dropout[i])(x))
             fc_layers.append(x);
 
-        del x 
+        del x
         gc.collect()
 
         return fc_layers
@@ -101,10 +101,10 @@ class ConvolutionalEncoder2D:
         fc_layers = self._affine_layers(flattened)
         graph = Model(self.input, fc_layers)
         return graph
-    
+
     def summary(self):
         print('Convolutional Encoder:')
         self.graph.summary()
-    
+
     def fit(self):
         self.graph.fit()
