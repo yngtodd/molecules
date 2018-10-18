@@ -21,7 +21,7 @@ class EncoderHyperparams:
         self.dropout = [0]
 
 
-class ConvolutionalEncoder2D:
+class EncoderConvolution2D:
 
     def __init__(self, input_shape, hyperparameters=EncoderHyperparams()):
         self.input = Input(shape=input_shape)
