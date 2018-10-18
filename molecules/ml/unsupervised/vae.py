@@ -1,11 +1,8 @@
 import gc
 
-from keras import backend as K
 from keras.models import Model
 from keras.layers import Input
 from keras.layers import Dense
-from keras.layers import Lambda
-from keras.layers import Flatten
 
 
 class CVAE:
