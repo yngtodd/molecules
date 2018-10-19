@@ -11,6 +11,10 @@ from keras.layers import Convolution2D
 class HyperparamsDecoder:
 
     def __init__(self):
+        self.num_conv_layers = 3
+        self.filters = [64, 64, 64]
+        self.kernels = [3, 3, 3]
+        self.strides = [1, 2, 1]
         self.latent_dim = 3
         self.activation = 'relu'
         self.output_activation = 'sigmoid'
@@ -20,8 +24,9 @@ class HyperparamsDecoder:
 
 class DecoderConvolution2D:
 
-    def __init__(self, output_shape,  hyperparameters=HyperparamsDecoder()):
+    def __init__(self, output_shape, enc_final_convs, hyperparameters=HyperparamsDecoder()):
         self.output_shape = output_shape
+        self.enc_convs = enc_final_convs
         self.hparams = hyperparameters
         self.input = Input(shape=(self.hparams.latent_dim,), name='z_sampling')
 
@@ -41,16 +46,16 @@ class DecoderConvolution2D:
         fc_layers : list
             Fully connected layers from embedding to convolution layers.
         """
-        if len(self.hparams.affine_width)!=self.hparams.num_affine_layers:
-            raise Exception("Number of affine width parameters must equal the number of affine layes")
-
         fc_layers = []
-        for i in range(self.hparams.num_affine_layers):
-            x = Dense(self.hparams.affine_width[i],
-                      activation=self.hparams.activation)(x)
+        for width in reversed(self.hparams.affine_width):
+            x = Dense(width, activation=self.hparams.activation)(x)
             fc_layers.append(x)
 
-        def x
+        # Since the networks are symmetric, we need a Dense layer to bridge fc layers and conv.
+        x = Dense(self.enc_convs, activation=self.hparams.activation)(x)
+        fc_layers.append(x)
+
+        del x
         gc.collect()
 
         return fc_layers
@@ -60,7 +65,7 @@ class DecoderConvolution2D:
 
         Parameters
         ----------
-        x : tensorflow tensor 
+        x : tensorflow tensor
             Shape of the image input.
 
         Returns
@@ -75,14 +80,26 @@ class DecoderConvolution2D:
         if len(self.hparams.filters)!=self.hparams.num_conv_layers:
             raise Exception("number of strides must equal length of convolutional layers.")
 
+        # Mirroring the encoder network requires reversing its hyperparameters.
+        filters = list(reversed(self.hparams.filters))
+        kernels = list(reversed(self.hparams.kernels))
+        strides = list(reversed(self.hparams.strides))
+
         conv2d_layers = []
-        for i in range(self.hparams.num_conv_layers):
-            x = Convolution2D(self.hparams.filters[i],
-                              self.hparams.kernels[i],
-                              strides=self.hparams.strides[i],
+        for i in range(self.hparams.num_conv_layers-1):
+            x = Convolution2D(filters[i],
+                              kernels[i],
+                              strides=strides[i],
                               activation=self.hparams.activation,
                               padding='same')(x)
             conv2d_layers.append(x)
+
+        # Final output is special.
+        x = Convolution2D(self.output_shape[2],
+                          kernels[-1],
+                          strides=strides[-1],
+                          activations=self.hparams.output_activation,
+                          padding='same')(x)
 
         del x
         gc.collect()
