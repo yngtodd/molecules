@@ -11,7 +11,7 @@ from keras.objectives import binary_crossentropy
 class CVAE:
 
     def __init__(self, input_shape, encoder, decoder, optimizer, loss=None):
-        self.input_shape = input_shape 
+        self.input_shape = input_shape
         self.encoder = encoder
         self.decoder = decoder
         self.graph = self._create_graph()
@@ -41,7 +41,12 @@ class CVAE:
         '''
         input_flat = K.flatten(input)
         output_flat = K.flatten(output)
-        xent_loss = self.input_shape[0] * self.input_shape[1] * binary_crossentropy(input_flat, output_flat)
-        kl_loss = - 0.5 * K.mean(1 + self.z_log_var - K.square(self.z_mean) - K.exp(self.z_log_var), axis=-1)
+
+        xent_loss = self.input_shape[0] * self.input_shape[1] \
+                    * binary_crossentropy(input_flat, output_flat)
+
+        kl_loss = - 0.5 * K.mean(1 + self.encoder.z_log_var - K.square(self.encoder.z_mean)
+                  - K.exp(self.encoder.z_log_var), axis=-1)
+
         return xent_loss + kl_loss
-    
+
