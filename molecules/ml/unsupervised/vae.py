@@ -74,6 +74,32 @@ class CVAE:
         """
         return self.graph.predict(data)
 
+    def embed(self, data):
+        """Embed a datapoint into the latent space.
+
+        Parameters
+        ----------
+        data : np.ndarray
+
+        Returns
+        -------
+        np.ndarray of embeddings.
+        """
+        return self.encoder.embed(data)
+
+    def generate(self, embedding):
+        """Generate images from embeddings.
+
+        Parameters
+        ----------
+        embedding : np.ndarray
+
+        Returns
+        -------
+        generated image : np.nddary
+        """
+        self.decoder.generate(embedding)
+
     def save(self, path):
         """Save model weights.
 

@@ -41,8 +41,8 @@ class EncoderConvolution2D:
         print('Convolutional Encoder:')
         self.graph.summary()
 
-    def get_embeddings(self, data):
-        """Get embeddings of a datapoint
+    def embed(self, data):
+        """Embed a datapoint into the latent space.
 
         Parameters
         ----------
@@ -52,7 +52,7 @@ class EncoderConvolution2D:
         -------
         np.ndarray of embeddings.
         """
-        return self.embedder.predict(data);
+        return self.embedder.predict(data)
 
     def _conv_layers(self, x):
         """Compose convolution layers.

@@ -34,6 +34,23 @@ class DecoderConvolution2D:
     def __repr__(self):
         return '2D Convolutional Decoder.'
 
+    def summary(self):
+        print('Convolutional Decoder')
+        return self.graph.summary()
+
+    def generate(self, embedding):
+        """Generate images from embeddings.
+
+        Parameters
+        ----------
+        embedding : np.ndarray
+
+        Returns
+        -------
+        generated image : np.nddary
+        """
+        self.graph.predict(embedding)
+
     def _affine_layers(self, x):
         """Compose fully connected layers.
 
@@ -95,7 +112,7 @@ class DecoderConvolution2D:
                                 padding='same')(x)
             conv2d_layers.append(x)
 
-        # Final output is special. 
+        # Final output is special.
         x = Conv2DTranspose(self.output_shape[2],
                             kernels[-1],
                             strides=strides[-1],
@@ -115,7 +132,3 @@ class DecoderConvolution2D:
         out_img = self._conv_layers(reshaped)
         graph = Model(self.input, out_img, name='decoder')
         return graph
-
-    def summary(self):
-        print('Convolutional Decoder')
-        return self.graph.summary()
