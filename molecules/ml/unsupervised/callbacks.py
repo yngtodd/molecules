@@ -35,3 +35,22 @@ class Embeddings(keras.callbacks.Callback):
 
     def on_batch_end(self, batch, logs={}):
         return
+
+    def save_embeddings(self, path, filename):
+        """Save embeddings and index of associated data point.
+
+        Parameters
+        ----------
+        path : str
+            Path to save embeddings and indices.
+
+        filename : str
+            Name of the experiment run.
+        """
+        embeddings = filename + '_embeddings'
+        idx = filename + '_data_index'
+        embed_path = os.path.join(path, embeddings)
+        idx_path = ps.path.join(path, idx)
+        np.save(embed_path, self.embeddings)
+        np.save(idx_path, self.data_index)
+
