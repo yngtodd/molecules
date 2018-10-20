@@ -27,13 +27,38 @@ class CVAE:
         self.encoder.summary()
         self.decoder.summary()
 
-    def _create_graph(self):
-        encoder = self.encoder.graph
-        decoder = self.decoder.graph
-        input_ = Input(shape=self.input_shape)
-        output = decoder(encoder(input_)[2])
-        graph = Model(input_, output, name='CVAE')
-        return graph
+    def train(self, data, batch_size, epochs=1, shuffle=False,
+              validation_data=None, checkpoint=False, path=None):
+        """Train network
+
+        Parameters
+        ----------
+        data : np.ndarray
+            Input data;
+
+        batch_size : int
+            Minibatch size
+
+        epochs : int
+            Number of epochs to train for
+
+        shuffle : bool
+            Whether to shuffle training data.
+
+        validation_data : tuple, optional
+            Tuple of np.ndarrays (X,y) representing validation data
+
+        checkpoint : boolean
+            Whether to save model after each epoch
+
+        path : str, optional
+            Path to save model if checkpoint is set to True
+        """
+        if checkpoint==True and path==None:
+            raise Exception("Please enter a path to save the network")
+
+        self.graph.fit(data,data,batch_size,epochs=epochs,shuffle=shuffle,
+                       validation_data=(data,data),callbacks=[self.history]);
 
     def decode(self, data):
         """Decode a data point
@@ -69,10 +94,16 @@ class CVAE:
         """
         self.graph.load_weights(path)
 
+    def _create_graph(self):
+        encoder = self.encoder.graph
+        decoder = self.decoder.graph
+        input_ = Input(shape=self.input_shape)
+        output = decoder(encoder(input_)[2])
+        graph = Model(input_, output, name='CVAE')
+        return graph
+
     def _vae_loss(self, input, output):
-        '''
-        loss function for variational autoencoder
-        '''
+        """Loss function for variational autoencoder"""
         input_flat = K.flatten(input)
         output_flat = K.flatten(output)
 

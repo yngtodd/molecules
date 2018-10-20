@@ -143,15 +143,15 @@ class EncoderConvolution2D:
         print('Convolutional Encoder:')
         self.graph.summary()
 
-     def get_embeddings(self, data):
-         """Get embeddings of a datapoint
+    def get_embeddings(self, data):
+        """Get embeddings of a datapoint
 
-         Parameters
-         ----------
-         data : np.ndarray
+        Parameters
+        ----------
+        data : np.ndarray
 
-         Returns
-         -------
-         np.ndarray of embeddings.
-         """
-         return self.embedder.predict(data);
+        Returns
+        -------
+        np.ndarray of embeddings.
+        """
+        return self.embedder.predict(data);
