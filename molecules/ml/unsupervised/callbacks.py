@@ -1,5 +1,8 @@
-import keras
+import os
+import numpy as np
 from random import randint
+
+import keras
 
 
 class Embeddings(keras.callbacks.Callback):
@@ -47,10 +50,10 @@ class Embeddings(keras.callbacks.Callback):
         filename : str
             Name of the experiment run.
         """
-        embeddings = filename + '_embeddings'
+        embed_name = filename + '_embeddings'
         idx = filename + '_data_index'
-        embed_path = os.path.join(path, embeddings)
-        idx_path = ps.path.join(path, idx)
+        embed_path = os.path.join(path, embed_name)
+        idx_path = os.path.join(path, idx)
         np.save(embed_path, self.embeddings)
         np.save(idx_path, self.data_index)
 
