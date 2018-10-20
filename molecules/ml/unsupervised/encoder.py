@@ -37,6 +37,23 @@ class EncoderConvolution2D:
     def __repr__(self):
         return '2D Convolutional Encoder.'
 
+    def summary(self):
+        print('Convolutional Encoder:')
+        self.graph.summary()
+
+    def get_embeddings(self, data):
+        """Get embeddings of a datapoint
+
+        Parameters
+        ----------
+        data : np.ndarray
+
+        Returns
+        -------
+        np.ndarray of embeddings.
+        """
+        return self.embedder.predict(data);
+
     def _conv_layers(self, x):
         """Compose convolution layers.
 
@@ -138,20 +155,3 @@ class EncoderConvolution2D:
         self.final_conv_shape = conv_shape[1:]
         self.total_conv_params = 1
         for x in conv_shape: self.total_conv_params *= x
-
-    def summary(self):
-        print('Convolutional Encoder:')
-        self.graph.summary()
-
-    def get_embeddings(self, data):
-        """Get embeddings of a datapoint
-
-        Parameters
-        ----------
-        data : np.ndarray
-
-        Returns
-        -------
-        np.ndarray of embeddings.
-        """
-        return self.embedder.predict(data);
