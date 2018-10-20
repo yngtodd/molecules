@@ -28,7 +28,7 @@ class VAE:
         self.decoder.summary()
 
     def train(self, data, batch_size, epochs=1, shuffle=False,
-              validation_data=None, checkpoint=False, path=None):
+              validation_data=None, checkpoint=False, path=None, callbacks=None):
         """Train network
 
         Parameters
@@ -58,7 +58,7 @@ class VAE:
             raise Exception("Please enter a path to save the network")
 
         self.graph.fit(data,data,batch_size,epochs=epochs,shuffle=shuffle,
-                       validation_data=(data,data),callbacks=[self.history]);
+                       validation_data=(data,data),callbacks=callbacks);
 
     def decode(self, data):
         """Decode a data point
