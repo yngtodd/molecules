@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.objectives import binary_crossentropy
 
 
-class CVAE:
+class VAE:
 
     def __init__(self, input_shape, encoder, decoder, optimizer, loss=None):
         self.input_shape = input_shape
