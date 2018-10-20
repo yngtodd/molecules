@@ -50,9 +50,9 @@ class Embeddings(keras.callbacks.Callback):
             Name of the experiment run.
         """
         embed_name = filename + '_embeddings'
-        idx = filename + '_data_index'
+        idx_name = filename + '_data_index'
         embed_path = os.path.join(path, embed_name)
-        idx_path = os.path.join(path, idx)
+        idx_path = os.path.join(path, idx_name)
         np.save(embed_path, self.embeddings)
         np.save(idx_path, self.data_index)
 
