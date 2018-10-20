@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from random import randint
 
 import keras
 
@@ -27,7 +26,7 @@ class Embeddings(keras.callbacks.Callback):
         return
 
     def on_epoch_end(self, epoch, logs={}):
-        idx = randint(0, len(self.data))
+        idx = np.random.randint(0, len(self.data))
         embedding = self.model.embed(data[idx])
         self.embeddings.append(embedding)
         self.data_index.append(idx)
