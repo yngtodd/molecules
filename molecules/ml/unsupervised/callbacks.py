@@ -3,7 +3,13 @@ from random import randint
 
 
 class Embeddings(keras.callbacks.Callback):
-    """Saves embeddings of random samples."""
+    """Saves embeddings of random samples.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Dataset from which to sample for embeddings.
+    """
     def __init__(self, data):
         self.data = data
 
