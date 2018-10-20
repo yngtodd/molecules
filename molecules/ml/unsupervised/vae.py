@@ -32,8 +32,42 @@ class CVAE:
         decoder = self.decoder.graph
         input_ = Input(shape=self.input_shape)
         output = decoder(encoder(input_)[2])
-        graph = Model(input_, output, name='VAE')
+        graph = Model(input_, output, name='CVAE')
         return graph
+
+    def decode(self, data):
+        """Decode a data point
+
+        Parameters
+        -----------
+        data : np.ndarray
+            Image to be decoded.
+
+        Returns
+        -------
+        np.ndarray of decodings for data.
+        """
+        return self.graph.predict(data)
+
+    def save(self, path):
+        """Save model weights.
+
+        Parameters
+        ----------
+        path : str
+            Path to save the model weights.
+        """
+        self.graph.save_weights(path)
+
+    def load(self, path):
+        """Load saved model weights.
+
+        Parameters
+        ----------
+        path: str
+            Path to saved model weights.
+        """
+        self.graph.load_weights(path)
 
     def _vae_loss(self, input, output):
         '''

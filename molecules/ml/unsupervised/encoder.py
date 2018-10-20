@@ -14,7 +14,7 @@ from keras.layers import Convolution2D
 class HyperparamsEncoder:
 
     def __init__(self):
-        self.num_conv_layers = 3 
+        self.num_conv_layers = 3
         self.filters = [64, 64, 64]
         self.kernels = [3, 3, 3]
         self.strides = [1, 2, 1]
@@ -32,6 +32,7 @@ class EncoderConvolution2D:
         self.input = Input(shape=input_shape)
         self.hparams = hyperparameters
         self.graph = self._create_graph()
+        self.embedder = Model(self.input, self.z_mean)
 
     def __repr__(self):
         return '2D Convolutional Encoder.'
@@ -141,3 +142,16 @@ class EncoderConvolution2D:
     def summary(self):
         print('Convolutional Encoder:')
         self.graph.summary()
+
+     def get_embeddings(self, data):
+         """Get embeddings of a datapoint
+
+         Parameters
+         ----------
+         data : np.ndarray
+
+         Returns
+         -------
+         np.ndarray of embeddings.
+         """
+         return self.embedder.predict(data);
