@@ -12,8 +12,9 @@ class Embeddings(keras.callbacks.Callback):
     data : np.ndarray
         Dataset from which to sample for embeddings.
     """
-    def __init__(self, data):
+    def __init__(self, data, graph):
         self.data = data
+        self.graph = graph
 
     def on_train_begin(self, logs={}):
         self.embeddings = []
@@ -27,7 +28,7 @@ class Embeddings(keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         idx = np.random.randint(0, len(self.data))
-        embedding = self.model.embed(data[idx])
+        embedding = self.graph.embed(self.data[idx-1:idx])
         self.embeddings.append(embedding)
         self.data_index.append(idx)
         return
