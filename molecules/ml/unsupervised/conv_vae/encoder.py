@@ -31,7 +31,7 @@ class EncoderConvolution2D:
         self.input_shape = input_shape
         self.input = Input(shape=input_shape)
         self.hparams = hyperparameters
-        self.graph = self._create_graph()
+        self.graph = self.create_graph(self.input)
         self.embedder = Model(self.input, self.z_mean)
 
     def __repr__(self):
@@ -39,7 +39,7 @@ class EncoderConvolution2D:
 
     def summary(self):
         print('Convolutional Encoder:')
-        self.graph.summary()
+        self.embedder.summary()
 
     def embed(self, data):
         """Embed a datapoint into the latent space.
@@ -119,6 +119,9 @@ class EncoderConvolution2D:
         self.z_log_var = Dense(self.hparams.latent_dim)(fc_layers[-1])
         self.z = Lambda(self.sampling, output_shape=(self.hparams.latent_dim,))([self.z_mean, self.z_log_var])
 
+        embed = self.z
+        return embed
+
     def sampling(self, args):
         """
         Reparameterization trick by sampling fr an isotropic unit Gaussian.
@@ -139,20 +142,18 @@ class EncoderConvolution2D:
         epsilon = K.random_normal(shape=(batch, dim))
         return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
-    def _create_graph(self):
-        """Create the keras model."""
-        self.conv_layers = self._conv_layers(self.input)
+    def create_graph(self, input_):
+        """Create keras model outside of class"""
+        self.conv_layers = self._conv_layers(input_)
         self.flattened = Flatten()(self.conv_layers[-1])
-        self._affine_layers(self.flattened)
-        #graph = Model(self.input, [self.z_mean, self.z_log_var, self.z], name='encoder')
-        graph = Model(self.input, self.z, name='encoder')
-        return graph
+        z = self._affine_layers(self.flattened)
+        return z
 
     def _get_final_conv_params(self):
         """Get the number of flattened parameters from final convolution layer."""
-        _input = np.ones((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
+        input_ = np.ones((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
         dummy = Model(self.input, self.conv_layers[-1])
-        conv_shape = dummy.predict(_input).shape
+        conv_shape = dummy.predict(input_).shape
         self.final_conv_shape = conv_shape[1:]
         self.total_conv_params = 1
         for x in conv_shape: self.total_conv_params *= x

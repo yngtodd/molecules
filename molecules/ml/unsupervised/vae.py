@@ -59,7 +59,7 @@ class VAE:
             raise Exception("Please enter a path to save the network")
 
         self.graph.fit(data,data,batch_size,epochs=epochs,shuffle=shuffle,
-                       validation_data=(data,data),callbacks=callbacks);
+                       validation_data=validation_data,callbacks=callbacks);
 
     def decode(self, data):
         """Decode a data point
@@ -122,16 +122,10 @@ class VAE:
         self.graph.load_weights(path)
 
     def _create_graph(self):
-        encoder = self.encoder.graph
-        decoder = self.decoder.graph
-        self.input_ = Input(shape=self.input_shape)
-        embed = encoder(self.input_)
-        #output = decoder(embed)
-        self.decoder_input = Input(shape=(self.latent_dim,))
-        output = decoder(self.decoder_input)
-        #print(f'output in encoder has shape {embed[2].shape}')
-        output = decoder(encoder(self.input_))
-        graph = Model(self.input_, output, name='CVAE')
+        self.input = Input(shape=self.input_shape)
+        embed = self.encoder.create_graph(self.input)
+        output = self.decoder.create_graph(embed)
+        graph = Model(self.input, output, name='CVAE')
         return graph
 
     def _vae_loss(self, input, output):
