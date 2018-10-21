@@ -144,7 +144,8 @@ class EncoderConvolution2D:
         self.conv_layers = self._conv_layers(self.input)
         self.flattened = Flatten()(self.conv_layers[-1])
         self._affine_layers(self.flattened)
-        graph = Model(self.input, [self.z_mean, self.z_log_var, self.z], name='encoder')
+        #graph = Model(self.input, [self.z_mean, self.z_log_var, self.z], name='encoder')
+        graph = Model(self.input, self.z, name='encoder')
         return graph
 
     def _get_final_conv_params(self):
