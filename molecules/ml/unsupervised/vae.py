@@ -57,6 +57,9 @@ class VAE:
         if checkpoint==True and path==None:
             raise Exception("Please enter a path to save the network")
 
+        if validation_data is not None:
+            validation_data = (validation_data, validation_data)
+
         self.graph.fit(data,data,batch_size,epochs=epochs,shuffle=shuffle,
                        validation_data=validation_data,callbacks=callbacks);
 
