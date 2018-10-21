@@ -3,9 +3,16 @@ import numpy as np
 
 
 class ContactMapDataset:
-    """Data handing for Numpy stored contact maps"""
-    def __init__(self, path):
+    """Data handling for Numpy stored contact maps"""
+    def __init__(self, path, name=None):
         self.path = path
+        self.name = name
+
+    def __repr__(self):
+        if self.name:
+            identifier = f'Data handler for {self.name} contact maps'
+            return identifier
+        return f'Data handler for contact maps'
 
     def load_data(self, shape=None):
         """Load numpy array data.
