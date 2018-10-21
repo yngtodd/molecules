@@ -10,8 +10,9 @@ from keras.objectives import binary_crossentropy
 
 class VAE:
 
-    def __init__(self, input_shape, encoder, decoder, optimizer, loss=None):
+    def __init__(self, input_shape, latent_dim, encoder, decoder, optimizer, loss=None):
         self.input_shape = input_shape
+        self.latent_dim = latent_dim
         self.encoder = encoder
         self.decoder = decoder
         self.graph = self._create_graph()
@@ -58,7 +59,7 @@ class VAE:
             raise Exception("Please enter a path to save the network")
 
         self.graph.fit(data,data,batch_size,epochs=epochs,shuffle=shuffle,
-                       validation_data=(data,data),callbacks=callbacks);
+                       validation_data=validation_data,callbacks=callbacks);
 
     def decode(self, data):
         """Decode a data point
@@ -121,11 +122,10 @@ class VAE:
         self.graph.load_weights(path)
 
     def _create_graph(self):
-        encoder = self.encoder.graph
-        decoder = self.decoder.graph
-        input_ = Input(shape=self.input_shape)
-        output = decoder(encoder(input_)[2])
-        graph = Model(input_, output, name='CVAE')
+        self.input = Input(shape=self.input_shape)
+        embed = self.encoder.create_graph(self.input)
+        output = self.decoder.create_graph(embed)
+        graph = Model(self.input, output, name='CVAE')
         return graph
 
     def _vae_loss(self, input, output):

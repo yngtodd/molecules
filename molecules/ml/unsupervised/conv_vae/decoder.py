@@ -29,14 +29,15 @@ class DecoderConvolution2D:
         self.enc_conv_shape = enc_conv_shape
         self.hparams = hyperparameters
         self.input = Input(shape=(self.hparams.latent_dim,), name='z_sampling')
-        self.graph = self._create_graph()
+        self.graph = self.create_graph(self.input)
+        self.generator = Model(self.input, self.graph)
 
     def __repr__(self):
         return '2D Convolutional Decoder.'
 
     def summary(self):
         print('Convolutional Decoder')
-        return self.graph.summary()
+        return self.generator.summary()
 
     def generate(self, embedding):
         """Generate images from embeddings.
@@ -49,7 +50,7 @@ class DecoderConvolution2D:
         -------
         generated image : np.nddary
         """
-        self.graph.predict(embedding)
+        self.generator.predict(embedding)
 
     def _affine_layers(self, x):
         """Compose fully connected layers.
@@ -126,9 +127,8 @@ class DecoderConvolution2D:
 
         return conv2d_layers
 
-    def _create_graph(self):
-        affine_layers = self._affine_layers(self.input)
+    def create_graph(self, input_):
+        affine_layers = self._affine_layers(input_)
         reshaped = Reshape(self.enc_conv_shape)(affine_layers[-1])
-        out_img = self._conv_layers(reshaped)
-        graph = Model(self.input, out_img, name='decoder')
-        return graph
+        out_img = self._conv_layers(reshaped)[-1]
+        return out_img
