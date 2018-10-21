@@ -4,7 +4,7 @@ import numpy as np
 import keras
 
 
-class Embeddings(keras.callbacks.Callback):
+class EmbeddingCallback(keras.callbacks.Callback):
     """Saves embeddings of random samples.
 
     Parameters
