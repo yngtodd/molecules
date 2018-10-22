@@ -23,7 +23,7 @@ Molecules
 Machine learning for molecular dynamics.
 
 Documentation
--------------
+--------------
 
 For references, tutorials, and examples check out our `documentation`_.
 
