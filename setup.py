@@ -23,7 +23,7 @@ setup(
     author='Todd Young',
     author_email='youngmt1@ornl.gov',
     url='https://github.com/yngtodd/molecules',
-    packages=find_packages()
+    packages=find_packages(),
     #package_dir={'molecules': 'molecules'},
     include_package_data=True,
     install_requires=[
