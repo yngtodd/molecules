@@ -23,7 +23,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='molecules',
-    version='0.0.1',
+    version='0.0.2',
     description='Machine learning for molecular dynamics.',
     long_description=readme + '\n\n' + doclink + '\n\n' + history,
     author='Todd Young',
