@@ -1,11 +1,7 @@
 import os
 import sys
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -27,10 +23,8 @@ setup(
     author='Todd Young',
     author_email='youngmt1@ornl.gov',
     url='https://github.com/yngtodd/molecules',
-    packages=[
-        'molecules',
-    ],
-    package_dir={'molecules': 'molecules'},
+    packages=find_packages()
+    #package_dir={'molecules': 'molecules'},
     include_package_data=True,
     install_requires=[
       'gym'
