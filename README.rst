@@ -10,10 +10,7 @@
 
 .. image:: https://badge.fury.io/py/molecules.png
     :target: http://badge.fury.io/py/molecules
-
-.. image:: https://travis-ci.org/yngtodd/molecules.png?branch=master
-    :target: https://travis-ci.org/yngtodd/molecules
-
+    
 .. highlight:: shell
 
 =========
