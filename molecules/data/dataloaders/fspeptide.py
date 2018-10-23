@@ -25,12 +25,12 @@ class FSPeptide:
         downloaded again.
     """
     urls = [
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-contactmaps.npy.gz'
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-labels.npy.gz'
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-contactmaps.npy.gz'
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-labels.npy.gz'
+        'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-contactmaps.npy.gz',
+        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-labels.npy.gz',
+        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-contactmaps.npy.gz',
+        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-labels.npy.gz',
         'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-contactmaps.npy.gz'
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-labels.npy.gz'
+        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-labels.npy.gz'
     ]
 
     training_file = 'training'
@@ -49,9 +49,9 @@ class FSPeptide:
         self.partition = partition
         if self.partition == 'train':
             data_file = self.training_file
-        else if self.partition == 'validation':
+        elif self.partition == 'validation':
             data_file = self.validation_file
-        else if self.partition == 'test':
+        elif self.partition == 'test':
             data_file = self.test_file
         else:
             raise ValueError("Partition must either be 'train', 'validation', or 'test'.")
@@ -100,7 +100,7 @@ class FSPeptide:
             filename = url.rpartition('/')[2]
             file_path = os.path.join(self.raw_folder, filename)
             download_url(url, root=self.raw_folder, filename=filename, md5=None)
-            self.extract_gzip(gzip_path=file_path, remove_finished=True)
+            self.extract_gzip(gzip_path=file_path, remove_finished=False)
 
         # process and save as numpy files
         print('Processing...')
