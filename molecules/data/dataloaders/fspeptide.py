@@ -25,11 +25,11 @@ class FSPeptide:
         downloaded again.
     """
     urls = [
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-contactmaps.npy.gz',
+        'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/train-contactmaps.npz',
         #'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-labels.npy.gz',
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-contactmaps.npy.gz',
+#        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-contactmaps.npy.gz',
         #'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-labels.npy.gz',
-        'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-contactmaps.npy.gz'
+#        'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-contactmaps.npy.gz'
         #'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-labels.npy.gz'
     ]
 
@@ -46,6 +46,7 @@ class FSPeptide:
         if not self._check_exists():
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
+
         self.partition = partition
         if self.partition == 'train':
             data_file = self.training_file
@@ -78,13 +79,12 @@ class FSPeptide:
             os.path.exists(os.path.join(self.processed_folder, self.test_file))
 
     @staticmethod
-    def extract_gzip(gzip_path, remove_finished=False):
-        print('Extracting {}'.format(gzip_path))
-        with open(gzip_path.replace('.gz', ''), 'wb') as out_f, \
-                gzip.GzipFile(gzip_path) as zip_f:
-            out_f.write(zip_f.read())
+    def extract_array(npz_path, remove_finished=False):
+        print('Extracting {}'.format(npz_path))
+        with np.load(npz_path) as data:
+            arry = data['arry']
         if remove_finished:
-            os.unlink(gzip_path)
+            os.unlink(npz_path)
 
     def download(self):
         """Download the FS-Peptide data if it doesn't exist in processed_folder already."""
@@ -97,16 +97,19 @@ class FSPeptide:
 
         # download files
         for url in self.urls:
+            print(f'url: {url}')
             filename = url.rpartition('/')[2]
+            print(f'filename: {filename}')
             file_path = os.path.join(self.raw_folder, filename)
+            print(f'file_path: {file_path}')
             download_url(url, root=self.raw_folder, filename=filename, md5=None)
-            self.extract_gzip(gzip_path=file_path, remove_finished=False)
+            self.extract_array(npz_path=file_path, remove_finished=False)
 
         # process and save as numpy files
         print('Processing...')
 
         training_set = (
-            read_image_file(os.path.join(self.raw_folder, 'train-contactmaps.npy')),
+            read_image_file(os.path.join(self.raw_folder, 'train-contactmaps.npz')),
             read_label_file(os.path.join(self.raw_folder, 'train-labels.npy'))
         )
         validation_set = (
@@ -141,5 +144,6 @@ def read_label_file(path):
     return np.load(path)
 
 def read_image_file(path):
-    array = np.load(path)
-    return array.reshape(-1, 21, 21)
+    with np.load(path) as data:
+        arry = data['arry']
+    return arry.reshape(-1, 21, 21)
