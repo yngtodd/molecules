@@ -1,8 +1,6 @@
 import os
-import os.path
-import gzip
 import numpy as np
-import codecs
+
 from .utils import download_url, makedir_exist_ok
 
 
