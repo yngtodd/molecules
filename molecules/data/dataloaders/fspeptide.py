@@ -19,18 +19,18 @@ class FSPeptide:
         dataset partition to be loaded.
         Either 'train', 'validation', or 'test'.
 
-    download bool, optional
+    download : bool, optional
         If true, downloads the dataset from the internet and
         puts it in root directory. If dataset is already downloaded, it is not
         downloaded again.
     """
     urls = [
-        'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/train-contactmaps.npz',
-        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/train-labels.npy.gz',
-#        'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-contactmaps.npy.gz',
-        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/validation-labels.npy.gz',
-#        'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-contactmaps.npy.gz'
-        #'https://github.com/yngtodd/moles/blob/master/fs-peptide/test-labels.npy.gz'
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/train-contactmaps.npz',
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/train-labels.npz',
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/validation-contactmaps.npz',
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/validation-labels.npz',
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/test-contactmaps.npz',
+      'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/test-labels.npz'
     ]
 
     training_file = 'training'
@@ -97,11 +97,8 @@ class FSPeptide:
 
         # download files
         for url in self.urls:
-            print(f'url: {url}')
             filename = url.rpartition('/')[2]
-            print(f'filename: {filename}')
             file_path = os.path.join(self.raw_folder, filename)
-            print(f'file_path: {file_path}')
             download_url(url, root=self.raw_folder, filename=filename, md5=None)
             self.extract_array(npz_path=file_path, remove_finished=False)
 
@@ -110,24 +107,29 @@ class FSPeptide:
 
         training_set = (
             read_image_file(os.path.join(self.raw_folder, 'train-contactmaps.npz')),
-            read_label_file(os.path.join(self.raw_folder, 'train-labels.npy'))
+            read_label_file(os.path.join(self.raw_folder, 'train-labels.npz'))
         )
         validation_set = (
-            read_image_file(os.path.join(self.raw_folder, 'validation-contactmaps.npy')),
-            read_label_file(os.path.join(self.raw_folder, 'validation-labels.npy'))
+            read_image_file(os.path.join(self.raw_folder, 'validation-contactmaps.npz')),
+            read_label_file(os.path.join(self.raw_folder, 'validation-labels.npz'))
         )
         test_set = (
-            read_image_file(os.path.join(self.raw_folder, 'test-contactmatps.npy')),
-            read_label_file(os.path.join(self.raw_folder, 'test-labels.npy'))
+            read_image_file(os.path.join(self.raw_folder, 'test-contactmaps.npz')),
+            read_label_file(os.path.join(self.raw_folder, 'test-labels.npz'))
         )
 
         with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
             np.save(training_set[0], f)
-            np
         with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
-            np.save(validation_set, f)
+            np.save(training_set[1], f)
+        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
+            np.save(validation_set[1], f)
+        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
+            np.save(validation_set[1], f)
         with open(os.path.join(self.processed_folder, self.test_file), 'wb') as f:
-            np.save(test_set, f)
+            np.save(test_set[0], f)
+        with open(os.path.join(self.processed_folder, self.test_file), 'wb') as f:
+            np.save(test_set[1], f)
 
         print('Done!')
 
@@ -141,7 +143,10 @@ class FSPeptide:
 
 
 def read_label_file(path):
-    return np.load(path)
+    with np.load(path) as data:
+        arry = data['arry']
+    return arry
+
 
 def read_image_file(path):
     with np.load(path) as data:
