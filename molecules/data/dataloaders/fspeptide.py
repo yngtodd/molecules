@@ -33,9 +33,12 @@ class FSPeptide:
       'https://raw.githubusercontent.com/yngtodd/moles/master/fs-peptide/test-labels.npz'
     ]
 
-    training_file = 'training'
-    validation_file = 'validation'
-    test_file = 'test'
+    training_contactmap_file = 'train_contactmaps.npy'
+    training_label_file = 'train_labels.npy'
+    validation_contactmap_file = 'validation_contactmaps.npy'
+    validation_label_file = 'validation_labels.npy'
+    test_contactmap_file = 'test_contactmaps.npy'
+    test_label_file = 'test_labels.npy'
 
     def __init__(self, root, partition, download=False):
         self.root = os.path.expanduser(root)
@@ -49,15 +52,19 @@ class FSPeptide:
 
         self.partition = partition
         if self.partition == 'train':
-            data_file = self.training_file
+            data_file = self.training_contactmap_file
+            label_file = self.training_label_file
         elif self.partition == 'validation':
-            data_file = self.validation_file
+            data_file = self.validation_contactmap_file
+            label_file = self.validation_label_file
         elif self.partition == 'test':
-            data_file = self.test_file
+            data_file = self.test_contactmap_file
+            label_file = self.test_label_file
         else:
             raise ValueError("Partition must either be 'train', 'validation', or 'test'.")
 
-        #self.data, self.targets = np.load(os.path.join(self.processed_folder, data_file))
+        self.data = np.load(os.path.join(self.processed_folder, data_file))
+        self.targets = np.load(os.path.join(self.processed_folder, label_file))
 
     def __len__(self):
         return len(self.data)
@@ -74,9 +81,12 @@ class FSPeptide:
         return os.path.join(self.root, self.__class__.__name__, 'processed')
 
     def _check_exists(self):
-        return os.path.exists(os.path.join(self.processed_folder, self.training_file)) and \
-            os.path.exists(os.path.join(self.processed_folder, self.validation_file)) and \
-            os.path.exists(os.path.join(self.processed_folder, self.test_file))
+        return os.path.exists(os.path.join(self.processed_folder, self.training_contactmap_file)) and \
+            os.path.exists(os.path.join(self.processed_folder, self.training_label_file)) and \
+            os.path.exists(os.path.join(self.processed_folder, self.validation_contactmap_file)) and \
+            os.path.exists(os.path.join(self.processed_folder, self.validation_label_file)) and \
+            os.path.exists(os.path.join(self.processed_folder, self.test_contactmap_file)) and \
+            os.path.exists(os.path.join(self.processed_folder, self.test_label_file))
 
     @staticmethod
     def extract_array(npz_path, remove_finished=False):
@@ -118,18 +128,23 @@ class FSPeptide:
             read_label_file(os.path.join(self.raw_folder, 'test-labels.npz'))
         )
 
-        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
-            np.save(training_set[0], f)
-        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
-            np.save(training_set[1], f)
-        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
-            np.save(validation_set[1], f)
-        with open(os.path.join(self.processed_folder, self.training_file), 'wb') as f:
-            np.save(validation_set[1], f)
-        with open(os.path.join(self.processed_folder, self.test_file), 'wb') as f:
-            np.save(test_set[0], f)
-        with open(os.path.join(self.processed_folder, self.test_file), 'wb') as f:
-            np.save(test_set[1], f)
+        # Save processed training data
+        train_data_path = os.path.join(self.processed_folder, self.training_contactmap_file)
+        np.save(train_data_path, training_set[0])
+        train_label_path = os.path.join(self.processed_folder, self.training_label_file)
+        np.save(train_label_path, training_set[1])
+
+        # Save processed valdation data
+        val_data_path = os.path.join(self.processed_folder, self.validation_contactmap_file)
+        np.save(val_data_path, validation_set[0])
+        val_label_path = os.path.join(self.processed_folder, self.validation_label_file)
+        np.save(val_label_path, validation_set[1])
+
+        #Save processed test data
+        test_data_path = os.path.join(self.processed_folder, self.test_contactmap_file)
+        np.save(test_data_path, test_set[0])
+        test_label_path = os.path.join(self.processed_folder, self.test_label_file)
+        np.save(test_label_path, test_set[1])
 
         print('Done!')
 
@@ -151,4 +166,5 @@ def read_label_file(path):
 def read_image_file(path):
     with np.load(path) as data:
         arry = data['arry']
-    return arry.reshape(-1, 21, 21)
+    # Array shape (B x H x W x C)
+    return arry.reshape(-1, 21, 21, 1)
