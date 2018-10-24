@@ -56,5 +56,6 @@ def main():
     cvae.save_weights(weight_path)
     callback.save_embeddings(filename='fspeptide', path=args.embedding_path)
 
+
 if __name__=='__main__':
     main()
