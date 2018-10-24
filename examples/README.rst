@@ -6,6 +6,6 @@ Examples
 
 1. Convolutional Variational Autoencoder
 
-   * Mnist Example
+   * MNIST Example
 
    * FS-Peptide Example
