@@ -103,7 +103,7 @@ class VAE:
         """
         self.decoder.generate(embedding)
 
-    def save(self, path):
+    def save_weights(self, path):
         """Save model weights.
 
         Parameters
