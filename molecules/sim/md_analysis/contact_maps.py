@@ -2,7 +2,7 @@ import os
 import tables
 
 import MDAnalysis as mda
-from MDAnalysis import contacts, distances
+from MDAnalysis.analysis import contacts, distances
 
 
 def contact_maps_from_traj(xyz_file, traj_file, cm_table_file, contact_cutoff=8.0, savepath=None, filename=None):
