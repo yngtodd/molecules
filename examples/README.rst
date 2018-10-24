@@ -6,8 +6,14 @@ Examples
 
 1. Convolutional Variational Autoencoder
 
-   * MNIST Example
+   Model learning
 
-   * FS-Peptide Example
+     * MNIST
 
-   * 1FME Example
+     * FS-Peptide
+
+     * 1FME
+
+   Embedding
+
+     * FS-Peptide
