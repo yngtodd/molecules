@@ -1,6 +1,6 @@
 import numpy as np 
 
-def tria_to_full(cm0): 
+def triu_to_full(cm0): 
     num_res = int(np.ceil((len(cm0) * 2) ** 0.5))
     iu1 = np.triu_indices(num_res, 1)
 
