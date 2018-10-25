@@ -1,17 +1,22 @@
+import os
 import argparse
 import numpy as np
+
 from keras.optimizers import RMSprop
 
+from molecules.ml.unsupervised import VAE
 from molecules.ml.unsupervised import EncoderConvolution2D
 from molecules.ml.unsupervised import DecoderConvolution2D
-from molecules.ml.unsupervised import VAE
+from molecules.ml.unsupervised.callbacks import EmbeddingCallback
 
 from molecules.data import OneFME
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Convolutional VAE for FS-Peptide data.')
-    parser.add_argument('--data_path', type=str, help='Path to load fs-peptide data.')
+    parser = argparse.ArgumentParser(description='Convolutional VAE for 1FME data.')
+    parser.add_argument('--data_path', type=str, help='Path to load 1FME data.')
+    parser.add_argument('--weight_path', type=str, help='Path to save network weights.')
+    parser.add_argument('--embedding_path', type=str, help='Path to save embeddings.')
     args = parser.parse_args()
 
     train_data = OneFME(args.data_path, partition='train', download=True)
@@ -39,7 +44,12 @@ def main():
                decoder=decoder,
                optimizer=optimizer)
 
-    cvae.train(x_train, validation_data=x_val, batch_size=512, epochs=10)
+    callback = EmbeddingCallback(x_train, cvae)
+    cvae.train(x_train, validation_data=x_val, batch_size=512, epochs=100, callbacks=[callback])
+
+    weight_path = os.path.join(args.weight_path, 'cvae_onefme.h5')
+    cvae.save_weights(weight_path)
+    callback.save_embeddings(filename='onefme', path=args.embedding_path)
 
 
 if __name__=='__main__':
