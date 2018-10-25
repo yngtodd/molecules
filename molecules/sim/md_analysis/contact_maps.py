@@ -13,8 +13,6 @@ def contact_maps_from_traj(pdb_file, traj_file, contact_cutoff=8.0, savefile=Non
     mda_traj = mda.Universe(pdb_file, traj_file)
     traj_length = len(mda_traj.trajectory) 
     ca = mda_traj.select_atoms('name CA')
-    num_ca = ca.n_atoms
-    contact_size = int(num_ca * (num_ca - 1) / 2)
     
     if savefile:
         savefile = os.path.abspath(savefile)
@@ -30,6 +28,5 @@ def contact_maps_from_traj(pdb_file, traj_file, contact_cutoff=8.0, savefile=Non
     if savefile:
         cm_table.append(contact_matrices)
         outfile.close() 
-        return savefile
 
     return contact_matrices
