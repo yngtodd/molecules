@@ -5,35 +5,28 @@ import MDAnalysis as mda
 from MDAnalysis.analysis import contacts, distances
 
 
-def contact_maps_from_traj(xyz_file, traj_file, cm_table_file, contact_cutoff=8.0, savepath=None, filename=None):
+def contact_maps_from_traj(pdb_file, traj_file, contact_cutoff=8.0, savefile=None):
     """
     Get contact map from trajectory.
     """
-    if savepath and not filename:
-        raise ValueError('Please specify a filename to save contact maps.')
-
-    if filename and not savepath:
-        raise ValueError('Please specify a path to save contact maps.')
-
-    if savepath and filename:
-        outpath = os.path.join(savepath, filename)
-        outfile = tables.open_file(outpath, 'w')
-        atom = tables.Float64Atom()
-        cm_table = outfile.create_earray(outfile.root, 'contact_maps', atom, shape=(contact_size, 0))
-
-    mda_traj = mda.Universe(xyz_file, traj_file)
+    
+    mda_traj = mda.Universe(pdb_file, traj_file)
+    traj_length = len(mda_traj.trajectory) 
     ca = mda_traj.select_atoms('name CA')
-    num_ca = ca.n_atoms
-    contact_size = int((num_ca - 1) / 2)
+    
+    if savefile:
+        savefile = os.path.abspath(savefile)
+        outfile = tables.open_file(savefile, 'w')
+        atom = tables.Float64Atom()
+        cm_table = outfile.create_earray(outfile.root, 'contact_maps', atom, shape=(traj_length, 0)) 
 
     contact_matrices = []
     for frame in mda_traj.trajectory:
-        thresholded_matrx = contacts.contact_matrix(distances.self_distance_array(ca.positions), radius=contact_cutoff) * 1.0
-        reshaped_matrix = thresholded_matrix.reshape(contact_size, 1)
-        contact_matrices.append(reshaped_matrix)
+        cm_matrix = contacts.contact_matrix(distances.self_distance_array(ca.positions), radius=contact_cutoff) * 1.0 
+        contact_matrices.append(cm_matrix)
 
-        if savepath and filename:
-            cm_table.append(reshaped_matrix)
-            outfile.close()
+    if savefile:
+        cm_table.append(contact_matrices)
+        outfile.close() 
 
     return contact_matrices
