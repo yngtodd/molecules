@@ -1,4 +1,4 @@
-import os
+import os, sys
 import numpy as np
 
 
@@ -9,10 +9,13 @@ class ContactMapDataset:
         self.name = name
 
     def __repr__(self):
-        if self.name:
-            identifier = f'Data handler for {self.name} contact maps'
+        if self.name and sys.version[0] == 3:
+            identifier = 'Data handler for {self.name} contact maps'
             return identifier
-        return f'Data handler for contact maps'
+        elif self.name: 
+            identifier = 'Data handler for {} contact maps'.format(self.name)
+            return identifier
+        return 'Data handler for contact maps'
 
     def load_data(self, shape=None):
         """Load numpy array data.
