@@ -1,13 +1,7 @@
-#!/usr/bin/env python
-
 import os
 import sys
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -23,16 +17,14 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='molecules',
-    version='0.0.1',
+    version='0.0.3.2',
     description='Machine learning for molecular dynamics.',
     long_description=readme + '\n\n' + doclink + '\n\n' + history,
     author='Todd Young',
     author_email='youngmt1@ornl.gov',
     url='https://github.com/yngtodd/molecules',
-    packages=[
-        'molecules',
-    ],
-    package_dir={'molecules': 'molecules'},
+    packages=find_packages(),
+    #package_dir={'molecules': 'molecules'},
     include_package_data=True,
     install_requires=[
       'gym'
