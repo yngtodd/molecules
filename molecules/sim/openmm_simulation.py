@@ -4,9 +4,12 @@ import simtk.unit as u
 
 import parmed as pmd
 import random
+from openmm_reporter import ContactMapReporter
 
 
-def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="output.dcd", output_log="output.log", report_time=10*u.picoseconds, sim_time=10*u.nanoseconds): 
+def openmm_simulate_charmm_nvt(top_file, pdb_file, GPU_index=0, 
+        output_traj="output.dcd", output_log="output.log", output_cm=None, 
+        report_time=10*u.picoseconds, sim_time=10*u.nanoseconds): 
     """
     Start and run an OpenMM NVT simulation with Langevin integrator at 2 fs 
     time step and 300 K. The cutoff distance for nonbonded interactions were 
@@ -19,7 +22,7 @@ def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="out
         This is the topology file discribe all the interactions within the MD 
         system. 
 
-    xyz_file : coordinates file (.gro, .pdb, ...)
+    pdb_file : coordinates file (.gro, .pdb, ...)
         This is the molecule configuration file contains all the atom position
         and PBC (periodic boundary condition) box in the system. 
    
@@ -42,7 +45,7 @@ def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="out
         The timespan of the simulation trajectory
     """
     
-    top = pmd.load_file(top_file, xyz = xyz_file)
+    top = pmd.load_file(top_file, xyz = pdb_file)
     
     system = top.createSystem(nonbondedMethod=app.PME, nonbondedCutoff=1.2*u.nanometer,
                               switchDistance=1.0*u.nanometer, constraints=app.HBonds)
@@ -65,6 +68,8 @@ def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="out
     report_freq = int(report_time/dt)
     simulation.context.setVelocitiesToTemperature(10*u.kelvin, random.randint(1, 10000))
     simulation.reporters.append(app.DCDReporter(output_traj, report_freq))
+    if output_cm: 
+        simulation.reporters.append(ContactMapReporter(output_cm, report_freq))
     simulation.reporters.append(app.StateDataReporter(output_log,
             report_freq, step=True, time=True, speed=True,
             potentialEnergy=True, temperature=True, totalEnergy=True))
@@ -73,7 +78,9 @@ def openmm_simulate_charmm_nvt(top_file, xyz_file, GPU_index=0, output_traj="out
     simulation.step(nsteps)
     
    
-def openmm_simulate_amber_nvt(top_file, xyz_file, GPU_index=0, output_traj="output.dcd", output_log="output.log", report_time=10*u.picoseconds, sim_time=10*u.nanoseconds): 
+def openmm_simulate_amber_nvt(top_file, pdb_file, GPU_index=0, 
+        output_traj="output.dcd", output_log="output.log", output_cm=None, 
+        report_time=10*u.picoseconds, sim_time=10*u.nanoseconds): 
     """
     Start and run an OpenMM NVT simulation with Langevin integrator at 2 fs 
     time step and 300 K. The cutoff distance for nonbonded interactions were 
@@ -86,7 +93,7 @@ def openmm_simulate_amber_nvt(top_file, xyz_file, GPU_index=0, output_traj="outp
         This is the topology file discribe all the interactions within the MD 
         system. 
 
-    xyz_file : coordinates file (.gro, .pdb, ...)
+    pdb_file : coordinates file (.gro, .pdb, ...)
         This is the molecule configuration file contains all the atom position
         and PBC (periodic boundary condition) box in the system. 
 
@@ -109,7 +116,7 @@ def openmm_simulate_amber_nvt(top_file, xyz_file, GPU_index=0, output_traj="outp
         The timespan of the simulation trajectory
     """
     
-    top = pmd.load_file(top_file, xyz = xyz_file)
+    top = pmd.load_file(top_file, xyz = pdb_file)
     
     system = top.createSystem(nonbondedMethod=app.PME, nonbondedCutoff=1.2*u.nanometer,
                               constraints=app.HBonds)
@@ -132,6 +139,8 @@ def openmm_simulate_amber_nvt(top_file, xyz_file, GPU_index=0, output_traj="outp
     report_freq = int(report_time/dt)
     simulation.context.setVelocitiesToTemperature(10*u.kelvin, random.randint(1, 10000))
     simulation.reporters.append(app.DCDReporter(output_traj, report_freq))
+    if output_cm:
+        simulation.reporters.append(ContactMapReporter(output_cm, report_freq))
     simulation.reporters.append(app.StateDataReporter(output_log,
             report_freq, step=True, time=True, speed=True,
             potentialEnergy=True, temperature=True, totalEnergy=True))

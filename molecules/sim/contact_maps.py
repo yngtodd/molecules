@@ -22,7 +22,7 @@ def contact_maps_from_traj(pdb_file, traj_file, contact_cutoff=8.0, savefile=Non
 
     contact_matrices = []
     for frame in mda_traj.trajectory:
-        cm_matrix = contacts.contact_matrix(distances.self_distance_array(ca.positions), radius=contact_cutoff) * 1.0 
+        cm_matrix = (distances.self_distance_array(ca.positions) < contact_cutoff) * 1.0
         contact_matrices.append(cm_matrix)
 
     if savefile:
