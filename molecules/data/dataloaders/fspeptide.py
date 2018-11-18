@@ -1,10 +1,10 @@
 import os
 import numpy as np
-
+from torch.utils.data import Dataset
 from .utils import download_url, makedir_exist_ok
 
 
-class FSPeptide:
+class FSPeptide(Dataset):
     """FS-Peptide Dataset.
 
     Parameters
@@ -69,6 +69,28 @@ class FSPeptide:
 
     def load_data(self):
         return self.data, self.targets
+
+    def __getitem__(self, idx):
+        """
+        Parameters
+        ----------
+        index : int
+          Index of the data to be loaded.
+
+        Returns
+        -------
+        (contactmap, target) : tuple
+           where target is index of the target class.
+        """
+        contactmap, target = self.data[idx], self.targets[idx]
+
+        if self.transform is not None:
+            contactmap = self.transform(contactmap)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return contactmap, target
 
     @property
     def raw_folder(self):
