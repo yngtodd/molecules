@@ -113,7 +113,7 @@ class VAE:
         """
         self.graph.save_weights(path)
 
-    def load(self, path):
+    def load_weights(self, path):
         """Load saved model weights.
 
         Parameters
