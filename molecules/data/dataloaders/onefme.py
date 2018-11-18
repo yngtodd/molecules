@@ -1,10 +1,11 @@
 import os
 import numpy as np
 
+from torch.utils.data import Dataset
 from .utils import download_url, makedir_exist_ok
 
 
-class OneFME:
+class OneFME(Dataset):
     """1FME Dataset.
 
     Parameters
