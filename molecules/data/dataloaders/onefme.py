@@ -32,7 +32,7 @@ class OneFME:
     validation_contactmap_file = 'validation_contactmaps.npy'
     test_contactmap_file = 'test_contactmaps.npy'
 
-    def __init__(self, root, partition, download=False):
+    def __init__(self, root, partition, transform=None, download=False):
         self.root = os.path.expanduser(root)
 
         if download:
@@ -52,6 +52,7 @@ class OneFME:
         else:
             raise ValueError("Partition must either be 'train', 'validation', or 'test'.")
 
+        self.transform = transform
         self.data = np.load(os.path.join(self.processed_folder, data_file))
 
     def __len__(self):
@@ -59,6 +60,25 @@ class OneFME:
 
     def load_data(self):
         return self.data
+
+    def __getitem__(self, idx):
+        """
+        Parameters
+        ----------
+        index : int
+          Index of the data to be loaded.
+
+        Returns
+        -------
+        (contactmap, target) : tuple
+           where target is index of the target class.
+        """
+        contactmap = self.data[idx]
+
+        if self.transform is not None:
+            contactmap = self.transform(contactmap)
+
+        return contactmap
 
     @property
     def raw_folder(self):
