@@ -1,6 +1,3 @@
-.. role:: hidden
-    :class: hidden-section
-
 Convolutional Autoencoder
 =========================
 
@@ -9,8 +6,8 @@ Convolutional Autoencoder
 .. currentmodule:: molecules.ml.unsupervised.conv_vae
 .. currentmodule:: molecules.ml.unsupervised.conv_vae.encoder
 
-:hidden:`EncoderConvolution2D`
-~~~~~~~~~~~~~~~~~~~~~~~
+EncoderConvolution2D
+~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: molecules.ml.unsupervised.conv_vae.encoder 
 .. autoclass:: EncoderConvolution2D 
