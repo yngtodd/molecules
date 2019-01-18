@@ -14,6 +14,7 @@ molecules Documentation
    contributing
    authors
    history
+   conv_vae
 
 Feedback
 ========
